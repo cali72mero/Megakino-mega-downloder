@@ -52,14 +52,29 @@ async def get_media_details(url: str, client: APIClient) -> MediaDetails:
     except Exception:
         pass
         
-    if not episodes:
-        # Check for direct iframes with data-src
-        for iframe in soup.find_all('iframe'):
-            data_src = iframe.get('data-src') or iframe.get('src')
-            if data_src:
-                if "voe.sx" in data_src or "megakino" in data_src or "gxplayer" in data_src:
-                    episodes.append(Episode(title=og_title, url=data_src))
-                    break
+    # Search for all available mirrors in iframes (important for different providers)
+    for iframe in soup.find_all('iframe'):
+        data_src = iframe.get('data-src') or iframe.get('src')
+        if data_src:
+            provider_name = "Unbekannt"
+            src_lower = data_src.lower()
+            if "voe" in src_lower: provider_name = "VOE"
+            elif "megakino" in src_lower: provider_name = "Megakino"
+            elif "gxplayer" in src_lower: provider_name = "GXPlayer"
+            elif "vidoza" in src_lower: provider_name = "Vidoza"
+            elif "streamtape" in src_lower: provider_name = "Streamtape"
+            elif "dood" in src_lower: provider_name = "DoodStream"
+            elif "waaw" in src_lower: provider_name = "WAAW"
+            
+            if provider_name != "Unbekannt":
+                # Only add if not already in the list to avoid duplicates
+                mirror_url = data_src
+                if mirror_url.startswith('//'):
+                    mirror_url = f"https:{mirror_url}"
+                    
+                is_duplicate = any(mirror_url == e.url for e in episodes)
+                if not is_duplicate:
+                    episodes.append(Episode(title=f"{og_title} ({provider_name} Mirror)", url=mirror_url))
 
     return MediaDetails(title=og_title, episodes=episodes)
 

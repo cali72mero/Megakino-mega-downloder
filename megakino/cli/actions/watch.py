@@ -22,6 +22,8 @@ def watch(direct_links: List[str], episodes: List[Episode]):
             "--profile=fast",
             "--hwdec=auto-safe",
             "--video-sync=display-resample",
+            "--video-zoom=0.05", # Slightly zoom in to hide edge logos
+            "--panscan=1.0",      # Crop edges if aspect ratio differs slightly
             f"--force-media-title={episode.title}",
             "--http-header-fields=Referer: https://voe.sx/,Origin: https://voe.sx/",
             "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"

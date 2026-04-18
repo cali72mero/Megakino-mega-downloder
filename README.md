@@ -80,9 +80,15 @@ For full functionality, we recommend:
 
 ---
 
-### 👤 Author / Kontakt
-Created with ❤️ by **cali72mero** (SoraMigurdia).
-Check out my [GitHub Repository](https://github.com/cali72mero/Megakino-mega-downloder)!
+### 👤 Autor / Contact
+Erstellt von **cali72mero**.
+Besuche mein [GitHub Repository](https://github.com/cali72mero/Megakino-mega-downloder)!
 
-### ⚠️ Disclaimer
-This tool is for educational purposes only. You are responsible for your own actions.
+### ⚖️ Haftungsausschluss / Disclaimer
+
+**Deutsch:**
+Dieses Programm wurde ausschließlich zu **Bildungszwecken** und zum **Lernen der Softwareentwicklung** erstellt. Der Autor (**cali72mero**) übernimmt keinerlei Haftung für die Nutzung dieses Programms oder für Schäden, die durch die Nutzung entstehen könnten. Jeder Nutzer ist selbst für seine Handlungen verantwortlich. Bitte beachte die Urheberrechte und Gesetze deines Landes.
+
+**English:**
+This tool is for **educational purposes** and **software development learning** only. The author (**cali72mero**) assumes no liability for the use of this program or any potential damages caused by it. Users are solely responsible for their own actions. Please respect copyright laws and the legislation of your country.
+
