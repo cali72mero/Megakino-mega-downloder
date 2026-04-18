@@ -1,0 +1,71 @@
+import re
+import base64
+import json
+from bs4 import BeautifulSoup
+from megakino.api.client import APIClient
+from typing import Optional
+
+def shift_letters(input_str):
+    result = ''
+    for c in input_str:
+        code = ord(c)
+        if 65 <= code <= 90:
+            code = (code - 65 + 13) % 26 + 65
+        elif 97 <= code <= 122:
+            code = (code - 97 + 13) % 26 + 97
+        result += chr(code)
+    return result
+
+def replace_junk(input_str):
+    junk_parts = ['@$', '^^', '~@', '%?', '*~', '!!', '#&']
+    for part in junk_parts:
+        input_str = re.sub(re.escape(part), '_', input_str)
+    return input_str
+
+def shift_back(s, n):
+    return ''.join(chr(ord(c) - n) for c in s)
+
+def decode_voe_string(encoded):
+    step1 = shift_letters(encoded)
+    step2 = replace_junk(step1).replace('_', '')
+    step3 = base64.b64decode(step2).decode()
+    step4 = shift_back(step3, 3)
+    step5 = base64.b64decode(step4[::-1]).decode()
+    return json.loads(step5)
+
+def extract_voe_from_script(html):
+    soup = BeautifulSoup(html, "html.parser")
+    script = soup.find("script", type="application/json")
+    if not script:
+        return None
+    return decode_voe_string(script.text[2:-2])["source"]
+
+async def voe_get_direct_link(link: str, client: APIClient) -> Optional[str]:
+    response = await client.get(link)
+    
+    redirect = re.search(r"https?://[^'\"<>]+", response.text)
+    if not redirect:
+        return None
+
+    redirect_url = redirect.group(0)
+
+    try:
+        resp = await client.get(redirect_url)
+        html = resp.text
+    except Exception as err:
+        return None
+
+    extracted = extract_voe_from_script(html)
+    if extracted:
+        return extracted
+
+    b64match = re.search(r"var a168c='([^']+)'", html)
+    if b64match:
+        decoded = base64.b64decode(b64match.group(1)).decode()[::-1]
+        return json.loads(decoded).get("source")
+
+    hls = re.search(r"'hls': '(?P<hls>[^']+)'", html)
+    if hls:
+        return base64.b64decode(hls.group("hls")).decode()
+
+    return None
