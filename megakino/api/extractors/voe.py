@@ -1,12 +1,15 @@
-import re
 import base64
 import json
-from bs4 import BeautifulSoup
-from megakino.api.client import APIClient
+import re
 from typing import Optional
 
+from bs4 import BeautifulSoup
+
+from megakino.api.client import APIClient
+
+
 def shift_letters(input_str):
-    result = ''
+    result = ""
     for c in input_str:
         code = ord(c)
         if 65 <= code <= 90:
@@ -16,22 +19,26 @@ def shift_letters(input_str):
         result += chr(code)
     return result
 
+
 def replace_junk(input_str):
-    junk_parts = ['@$', '^^', '~@', '%?', '*~', '!!', '#&']
+    junk_parts = ["@$", "^^", "~@", "%?", "*~", "!!", "#&"]
     for part in junk_parts:
-        input_str = re.sub(re.escape(part), '_', input_str)
+        input_str = re.sub(re.escape(part), "_", input_str)
     return input_str
 
+
 def shift_back(s, n):
-    return ''.join(chr(ord(c) - n) for c in s)
+    return "".join(chr(ord(c) - n) for c in s)
+
 
 def decode_voe_string(encoded):
     step1 = shift_letters(encoded)
-    step2 = replace_junk(step1).replace('_', '')
+    step2 = replace_junk(step1).replace("_", "")
     step3 = base64.b64decode(step2).decode()
     step4 = shift_back(step3, 3)
     step5 = base64.b64decode(step4[::-1]).decode()
     return json.loads(step5)
+
 
 def extract_voe_from_script(html):
     soup = BeautifulSoup(html, "html.parser")
@@ -40,9 +47,10 @@ def extract_voe_from_script(html):
         return None
     return decode_voe_string(script.text[2:-2])["source"]
 
+
 async def voe_get_direct_link(link: str, client: APIClient) -> Optional[str]:
     response = await client.get(link)
-    
+
     redirect = re.search(r"https?://[^'\"<>]+", response.text)
     if not redirect:
         return None
@@ -52,7 +60,7 @@ async def voe_get_direct_link(link: str, client: APIClient) -> Optional[str]:
     try:
         resp = await client.get(redirect_url)
         html = resp.text
-    except Exception as err:
+    except Exception:
         return None
 
     extracted = extract_voe_from_script(html)

@@ -1,11 +1,12 @@
 import json
-import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
+
 from appdirs import user_config_dir
 
 CONFIG_DIR = Path(user_config_dir("megakino", "Tmaster055"))
 CONFIG_FILE = CONFIG_DIR / "config.json"
+
 
 @dataclass
 class AppConfig:
@@ -15,6 +16,7 @@ class AppConfig:
     theme: str = "default"
     show_animations: bool = False
 
+
 class ConfigManager:
     def __init__(self):
         self.config = AppConfig()
@@ -22,19 +24,24 @@ class ConfigManager:
 
     def load(self):
         if not CONFIG_FILE.exists():
-            self.save()
             return
         try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            with open(CONFIG_FILE, encoding="utf-8") as f:
                 data = json.load(f)
-                self.config = AppConfig(**data)
-        except Exception:
-            pass # fallback to default if parsing fails
+            known_fields = AppConfig.__dataclass_fields__.keys()
+            filtered = {key: value for key, value in data.items() if key in known_fields}
+            self.config = AppConfig(**filtered)
+        except (OSError, TypeError, json.JSONDecodeError):
+            self.config = AppConfig()
 
     def save(self):
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        temp_file = CONFIG_FILE.with_suffix(".tmp")
+        with open(temp_file, "w", encoding="utf-8") as f:
             json.dump(asdict(self.config), f, indent=4)
+            f.write("\n")
+        temp_file.replace(CONFIG_FILE)
+
 
 config_manager = ConfigManager()
 config = config_manager.config

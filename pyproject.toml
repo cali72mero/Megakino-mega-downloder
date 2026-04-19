@@ -3,13 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 [project]
 name = "megakino-mega-downloader"
-version = "1.2.5"
+version = "1.2.6"
 authors = [
   { name="cali72mero" },
 ]
-description = "The ultimate Mega Downloader for Megakino & VOE - Faster, Safer, Better!"
+description = "A modern terminal media workflow demo with search, playback helpers, and download orchestration."
 readme = "README.md"
 requires-python = ">=3.8"
+license = { file = "LICENSE" }
 dependencies = [
     'yt-dlp',
     'httpx',
@@ -24,7 +25,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Topic :: Utilities",
 ]
+keywords = ["cli", "media", "terminal", "rich"]
 
 [project.urls]
 Homepage = "https://github.com/cali72mero/Megakino-mega-downloder"
@@ -35,3 +38,15 @@ mega-downloader = "megakino.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["megakino"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
